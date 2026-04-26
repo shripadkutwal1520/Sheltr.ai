@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/incident.dart';
+import '../../services/report_service.dart';
 
 class IncidentsTab extends StatelessWidget {
   const IncidentsTab({super.key});
@@ -44,6 +45,11 @@ class IncidentsTab extends StatelessWidget {
     return '$month/$day $hour:$minute';
   }
 
+  Future<void> _generatePdfReport(List<Incident> incidents) async {
+    final reportService = ReportService();
+    await reportService.generateIncidentReport(incidents);
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
@@ -58,59 +64,59 @@ class IncidentsTab extends StatelessWidget {
         }
 
         if (snap.hasError) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                const SizedBox(height: 16),
-                Text('Error: ${snap.error}'),
-              ],
-            ),
-          );
+          return Center(child: Text('Error: ${snap.error}'));
         }
 
-        if (!snap.hasData || snap.data!.docs.isEmpty) {
+        final incidents = snap.data?.docs.map((doc) => Incident.fromFirestore(doc)).toList() ?? [];
+
+        if (incidents.isEmpty) {
           return const Center(child: Text('No data available'));
         }
 
-        return ListView.builder(
-          padding: const EdgeInsets.all(12),
-          itemCount: snap.data!.docs.length,
-          itemBuilder: (context, index) {
-            final doc = snap.data!.docs[index];
-            final incident = Incident.fromFirestore(doc);
+        return Scaffold(
+          body: ListView.builder(
+            padding: const EdgeInsets.all(12),
+            itemCount: incidents.length,
+            itemBuilder: (context, index) {
+              final incident = incidents[index];
 
-            return Card(
-              margin: const EdgeInsets.only(bottom: 10),
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: _severityColor(incident.severity),
-                  child: Icon(
-                    _incidentIcon(incident.type),
-                    color: Colors.white,
-                    size: 20,
+              return Card(
+                margin: const EdgeInsets.only(bottom: 10),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: _severityColor(incident.severity),
+                    child: Icon(
+                      _incidentIcon(incident.type),
+                      color: Colors.white,
+                      size: 20,
+                    ),
                   ),
-                ),
-                title: Text(
-                  (incident.type ?? 'Unknown').toUpperCase(),
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text(
-                  'Severity: ${(incident.severity ?? 'unknown').toUpperCase()}',
-                  style: TextStyle(
-                    color: _severityColor(incident.severity),
-                    fontWeight: FontWeight.w500,
+                  title: Text(
+                    (incident.type ?? 'Unknown').toUpperCase(),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
+                  subtitle: Text(
+                    'Severity: ${(incident.severity ?? 'unknown').toUpperCase()}',
+                    style: TextStyle(
+                      color: _severityColor(incident.severity),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  trailing: Text(
+                    _formatTimestamp(incident.timestamp),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  onTap: () => _showIncidentDetails(context, incident),
                 ),
-                trailing: Text(
-                  _formatTimestamp(incident.timestamp),
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                onTap: () => _showIncidentDetails(context, incident),
-              ),
-            );
-          },
+              );
+            },
+          ),
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: () => _generatePdfReport(incidents),
+            icon: const Icon(Icons.picture_as_pdf),
+            label: const Text('Export PDF'),
+            backgroundColor: Colors.deepPurple,
+          ),
         );
       },
     );
