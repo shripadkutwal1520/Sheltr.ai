@@ -1,0 +1,29 @@
+# Mobile
+apps/mobile/.dart_tool/
+apps/mobile/.flutter-plugins
+apps/mobile/.flutter-plugins-dependencies
+apps/mobile/.pub-cache/
+apps/mobile/build/
+apps/mobile/android/local.properties
+apps/mobile/android/.gradle/
+apps/mobile/android/app/build/
+
+# Backend
+backend/functions/node_modules/
+backend/functions/.runtimeconfig.json
+backend/functions/lib/
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# OS
+.DS_Store
+Thumbs.db

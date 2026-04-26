@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "534039383542",
+    "project_id": "sheltr-ai-2",
+    "storage_bucket": "sheltr-ai-2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:534039383542:android:7929a20f666b1f3f0d0bd7",
+        "android_client_info": {
+          "package_name": "com.sheltr.ai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZ6Q07iPqAxf3_flm-L7HMEi34POA2qbA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
