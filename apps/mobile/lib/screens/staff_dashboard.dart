@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'staff/incidents_tab.dart';
 import 'staff/inventory_tab.dart';
@@ -34,6 +35,12 @@ class _StaffDashboardState extends State<StaffDashboard> {
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () => FirebaseAuth.instance.signOut(),
+          ),
+        ],
       ),
       body: _tabs[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(

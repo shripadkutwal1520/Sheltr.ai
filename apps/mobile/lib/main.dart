@@ -13,9 +13,22 @@ import 'screens/staff_dashboard.dart';
 
 import 'services/notification_service.dart';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
+import 'package:flutter/foundation.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  if (kDebugMode) {
+    const String host = "10.97.32.176";
+    FirebaseFirestore.instance.useFirestoreEmulator(host, 8080);
+    FirebaseAuth.instance.useAuthEmulator(host, 9099);
+    FirebaseFunctions.instance.useFunctionsEmulator(host, 5001);
+    print("Connecting to Firebase Emulators at $host");
+  }
+
   runApp(MyApp());
 }
 
@@ -140,12 +153,7 @@ class _MainNavigatorState extends State<MainNavigator> {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-    final isGuest = user?.email?.toLowerCase() == 'guest@demo.com';
-
-    final screens = isGuest 
-        ? const [HomeScreen()] 
-        : const [HomeScreen(), AlertsScreen(), MapScreen()];
+    final screens = const [HomeScreen(), AlertsScreen(), MapScreen()];
 
     // Reset index safely if role changes and index is out of bounds
     if (_currentIndex >= screens.length) {
@@ -154,17 +162,15 @@ class _MainNavigatorState extends State<MainNavigator> {
 
     return Scaffold(
       body: IndexedStack(index: _currentIndex, children: screens),
-      bottomNavigationBar: isGuest
-          ? null // BottomNavigationBar requires at least 2 items, so hide it completely for guest
-          : BottomNavigationBar(
-              currentIndex: _currentIndex,
-              onTap: (i) => setState(() => _currentIndex = i),
-              items: const [
-                BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-                BottomNavigationBarItem(icon: Icon(Icons.warning), label: 'Alerts'),
-                BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Map'),
-              ],
-            ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (i) => setState(() => _currentIndex = i),
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.warning), label: 'Alerts'),
+          BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Map'),
+        ],
+      ),
     );
   }
 }
